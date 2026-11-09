@@ -1,0 +1,12 @@
+# Ignorar el servidor generado (mundo, jars, logs, configs de runtime)
+server/
+*.jar
+*.log
+!gradle-wrapper.jar
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
