@@ -57,6 +57,26 @@ if [ ! -s "$SRV/server.properties" ]; then
   echo ">> server.properties creado desde config/"
 fi
 
+# Fuerza los valores pedidos en cada arranque (idempotente).
+PROPS="$SRV/server.properties"
+set_prop() {
+  local k="$1" v="$2"
+  if grep -q "^${k}=" "$PROPS" 2>/dev/null; then
+    sed -i "s#^${k}=.*#${k}=${v}#" "$PROPS"
+  else
+    printf '%s=%s\n' "$k" "$v" >> "$PROPS"
+  fi
+}
+set_prop online-mode false
+set_prop max-players 4
+set_prop view-distance 32
+set_prop simulation-distance 32
+set_prop spawn-protection 0
+set_prop motd "Ragsnor | Java + Bedrock"
+set_prop enable-status true
+set_prop max-tick-time -1
+echo ">> server.properties ajustado: online-mode=false, 4 jugadores, view 32, sim 32"
+
 # Geyser se configura por variables de entorno (GEYSER_*) definidas en el
 # workflow, asi no depende del formato interno de config.yml de cada version.
 #   GEYSER_JAVA_AUTH_TYPE=floodgate  -> permite entrar a jugadores de Bedrock

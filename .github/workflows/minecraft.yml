@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version de Paper (ej: 1.21.11, 26.3)"
+        description: "Version de Paper (ej: 1.21.10, 1.21.11, 26.3)"
         required: false
-        default: "1.21.11"
+        default: "1.21.10"
       duration:
         description: "Minutos que el servidor queda online (max 350)"
         required: false
@@ -18,7 +18,7 @@ on:
       heap:
         description: "RAM para Java (ej: 4G, 6G, 8G)"
         required: false
-        default: "6G"
+        default: "8G"
 
 concurrency:
   group: minecraft-server
@@ -44,8 +44,9 @@ jobs:
       # Asi funciona igual sin importar como cambie el config.yml entre versiones.
       GEYSER_BEDROCK_ADDRESS: "0.0.0.0"
       GEYSER_BEDROCK_PORT: "19132"
-      GEYSER_JAVA_AUTH_TYPE: "floodgate"
-      GEYSER_REMOTE_AUTH_TYPE: "floodgate"
+      # online-mode=false -> los jugadores de Bedrock entran sin cuenta Xbox
+      GEYSER_JAVA_AUTH_TYPE: "offline"
+      GEYSER_REMOTE_AUTH_TYPE: "offline"
       GEYSER_PASSTHROUGH_MOTD: "true"
       GEYSER_DEBUG_MODE: "false"
 
