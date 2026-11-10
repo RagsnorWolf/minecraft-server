@@ -59,6 +59,13 @@ jobs:
             server/world_the_end
             server/plugins/Geyser-Spigot
             server/plugins/floodgate
+            server/plugins/*/
+            server/server.properties
+            server/config/
+            server/bukkit.yml
+            server/spigot.yml
+            server/paper.yml
+            server/commands.yml
             server/ops.json
             server/whitelist.json
             server/banned-ips.json
@@ -80,6 +87,13 @@ jobs:
             server/world_the_end
             server/plugins/Geyser-Spigot
             server/plugins/floodgate
+            server/plugins/*/
+            server/server.properties
+            server/config/
+            server/bukkit.yml
+            server/spigot.yml
+            server/paper.yml
+            server/commands.yml
             server/ops.json
             server/whitelist.json
             server/banned-ips.json
