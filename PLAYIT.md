@@ -5,15 +5,15 @@ Playit es el túnel público. Se necesita una vez por Codespace; después se rei
 ## 1. Vincular el agente Playit
 
 1. Abrí el Codespace en el navegador.
-2. Esperá a que termine Paper. El script también intenta iniciar el agente Playit.
-3. En la terminal ejecutá:
+2. En una terminal ejecutá `playit setup` y seguí el enlace o código para vincular el agente a tu cuenta.
+3. Cuando termine la vinculación, ejecutá `bash scripts/start.sh` para iniciar (o reanudar) Paper y el agente Playit.
+4. Revisá el registro del agente:
 
 ```bash
 tail -f server/logs/playit.log
 ```
 
-4. Si Playit muestra un enlace de activación/claim, abrilo en el navegador del celular o PC e iniciá sesión en Playit.
-5. Si no aparece ningún enlace, ejecutá `playit setup` en una terminal y seguí lo que indique. No pegues claves privadas en el repositorio ni en chats.
+No pegues claves privadas en el repositorio ni en chats.
 
 Después de vincularlo, verificá que el agente siga activo:
 
