@@ -7,7 +7,7 @@
 - **Java Edition:** puerto local TCP 25565.
 - **Bedrock Edition:** Geyser + Floodgate, puerto local UDP 19132; para acceso público se configura Playit NetherNet.
 - **Máquina Codespaces configurada:** mínimo 4 CPU, 16 GB RAM, 64 GB almacenamiento.
-- **RAM de Paper:** hasta 12 GB de heap. No se asigna toda la RAM a Java porque Linux, Geyser, Playit y otros procesos también necesitan memoria.
+- **RAM de Paper:** el arranque calcula automáticamente cerca del 75% de la RAM visible para Java. En una máquina de 16 GB asigna aproximadamente 12 GB; en una de 32 GB, aproximadamente 24 GB. Se reserva el resto para Linux, Geyser, Playit y otros procesos.
 
 Paper recomienda Java 21 para las versiones 1.20 a 1.21.11: https://docs.papermc.io/paper/getting-started/
 
