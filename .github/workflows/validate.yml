@@ -123,7 +123,7 @@ jobs:
 
       - name: Verify server and plugins
         run: |
-          grep -qE 'Done \\([0-9.]+s\\)!' server/logs/latest.log
+          grep -q 'Done (' server/logs/latest.log
           test -s server/plugins/Geyser-Spigot.jar
           test -s server/plugins/floodgate-spigot.jar
           test -s server/plugins/ViaVersion.jar
