@@ -2,9 +2,9 @@
   "name": "Ragsnor Paper 1.21.10",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
   "hostRequirements": {
-    "cpus": 4,
-    "memory": "16gb",
-    "storage": "64gb"
+    "cpus": 2,
+    "memory": "8gb",
+    "storage": "32gb"
   },
   "features": {
     "ghcr.io/devcontainers/features/java:1": {
@@ -17,7 +17,7 @@
   "forwardPorts": [25565],
   "portsAttributes": {
     "25565": {
-      "label": "Minecraft Java TCP (solo pruebas del Codespace)",
+      "label": "Minecraft Java TCP local",
       "onAutoForward": "silent"
     }
   },
