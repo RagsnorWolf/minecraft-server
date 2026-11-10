@@ -50,9 +50,11 @@ jobs:
           XMS: 1G
           SKIP_PLAYIT: "true"
         run: |
-          bash scripts/start.sh
+          bash .devcontainer/start.sh
           grep -qE 'Done \([0-9.]+s\)!' server/logs/latest.log
           grep -qi 'Geyser' server/logs/latest.log
+          grep -qi 'ViaVersion' server/logs/latest.log
+          grep -q 'auth-type: floodgate' server/plugins/Geyser-Spigot/config.yml
       - name: Stop Paper and save test logs
         if: always()
         run: |
