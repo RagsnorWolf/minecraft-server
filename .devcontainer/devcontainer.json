@@ -1,13 +1,11 @@
 {
-  "name": "Minecraft Paper + Geyser",
+  "name": "Ragsnor Minecraft Paper + Geyser",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
-
   "hostRequirements": {
     "cpus": 2,
     "memory": "8gb",
     "storage": "32gb"
   },
-
   "features": {
     "ghcr.io/devcontainers/features/java:1": {
       "version": "21",
@@ -18,16 +16,13 @@
       "version": "latest"
     }
   },
-
   "postCreateCommand": "bash .devcontainer/setup.sh",
   "postStartCommand": "bash .devcontainer/start.sh",
-
   "forwardPorts": [25565, 19132],
   "portsAttributes": {
-    "25565": { "label": "Minecraft Java", "onAutoForward": "silent" },
-    "19132": { "label": "Minecraft Bedrock", "onAutoForward": "silent" }
+    "25565": { "label": "Minecraft Java (local test)", "onAutoForward": "silent" },
+    "19132": { "label": "Minecraft Bedrock (local test)", "onAutoForward": "silent" }
   },
-
   "customizations": {
     "vscode": {
       "settings": {
@@ -35,6 +30,5 @@
       }
     }
   },
-
   "remoteUser": "vscode"
 }

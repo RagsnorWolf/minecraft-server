@@ -1,240 +1,134 @@
-# Ragsnor — Servidor Minecraft en GitHub
+# Ragsnor — Servidor Minecraft Java + Bedrock
 
-Servidor **Paper 1.21.11** + **GeyserMC** + **Floodgate** corriendo en **GitHub Actions**,
-con túnel **playit.gg** para que entren jugadores de **Java y Bedrock (celular/consola)**
-desde cualquier lugar, sin abrir puertos y sin pagar nada.
+Servidor Paper 1.21.10 con GeyserMC, Floodgate y ViaVersion. Se puede ejecutar por sesiones desde GitHub Actions o GitHub Codespaces y publicar Java y Bedrock mediante Playit.gg.
 
-Se prende y se apaga desde el celular entrando a `github.com` → **Actions** → **Run workflow**.
+## Estado y límites
 
----
+- Paper 1.21.10 usa Java 21. Se conserva esta versión para evitar convertir el mundo guardado a una versión nueva sin una copia verificada.
+- ViaVersion se instala automáticamente para admitir clientes Java actuales, incluida la línea 26.3.
+- Geyser + Floodgate permiten el acceso Bedrock sin que cada jugador tenga una cuenta Java.
+- GitHub Actions funciona por sesiones y apaga el servidor al terminar el tiempo configurado (por defecto 330 minutos). No es un hosting 24/7.
+- Codespaces también puede ejecutar el servidor, pero las horas gratuitas dependen de la cuota de la cuenta y el entorno debe permanecer activo.
+- El mundo de Actions se conserva mediante GitHub Actions Cache. No es un sistema de copias de seguridad permanente: descargá copias periódicamente.
 
-## Lo que tienes que saber antes (importante)
+## Archivos y carpetas
 
-| Cosa | Realidad |
-|------|----------|
-| **Duración por sesión** | Máximo **6 horas** por arranque. Después GitHub mata el job y el servidor se apaga solo. Volvés a darle *Run workflow* y arranca de nuevo con el mundo intacto. |
-| **Uptime** | **No es 24/7.** Es un servidor "por sesiones". Sirve para jugar con amigos un rato, no para tenerlo siempre prendido. |
-| **Ping desde Mendoza** | Los runners de GitHub están en Azure (EE. UU. / Europa). Esperá **140–200 ms**. Para ping bajo real (30–60 ms) necesitás un servidor en São Paulo. |
-| **RAM** | 16 GB en el runner; al server le damos **6 GB** de heap Java (configurable hasta 8G). |
-| **Costo** | **$0.** Repo público = minutos de Actions gratis. Sin tarjeta, sin tokens, sin créditos. |
-| **Datos** | El mundo se guarda automáticamente en la caché de Actions y se restaura en el próximo arranque. |
+La carpeta **server/** no se sube al repositorio. Está excluida por .gitignore y se genera al instalar el servidor.
 
-> ⚠️ GitHub Actions está pensado para CI/CD. Usarlo como servidor de juegos 24/7 va contra
-> sus políticas de uso aceptable. Este repo está diseñado para **sesiones manuales y cortas**,
-> que es el uso de menor riesgo.
+Después de ejecutar la instalación, contiene:
+- **server.jar**: Paper.
+- **plugins/**: Geyser, Floodgate y ViaVersion.
+- **plugins/Geyser-Spigot/config.yml**: configuración de Geyser y conexión Bedrock.
+- **world/** y dimensiones: mundo.
+- **logs/latest.log**: registro del servidor.
+- **ADDRESS.txt**: direcciones publicadas durante la sesión.
+- **GEYSER_BEDROCK_ADDRESS.txt**: dirección pública Bedrock, si fue configurada.
 
----
+## Configurar Playit.gg (una sola vez)
 
-## Instalación (5 minutos, una sola vez)
+Necesitás una cuenta en https://playit.gg y dos túneles diferentes.
 
-### 1. Crear el repositorio
+### 1. Túnel Java
 
-**Opción A — desde la web (más fácil):**
+En Playit, creá un túnel de tipo Minecraft Java:
+- Destino local: 127.0.0.1
+- Puerto local: 25565
+- Protocolo: TCP
 
-1. Entrá a https://github.com/new
-2. Nombre: `minecraft-server`
-3. Visibilidad: **Public** (para tener minutos ilimitados de Actions)
-4. **No** marques "Add a README"
-5. Crear repositorio
+En Agents / Setup copiá la Secret Key del agente. No la publiques ni la pegues en archivos del repositorio.
 
-**Opción B — por terminal:**
+### 2. Túnel Bedrock
 
-```bash
-gh repo create minecraft-server --public --source=. --push
-```
+Para Geyser actual, creá un túnel de tipo **Minecraft Bedrock (NetherNet)**, no el túnel Bedrock antiguo. Confirmá el aviso experimental si Playit lo solicita.
 
-### 2. Subir estos archivos
+Abrí ese túnel, entrá en **Configuration Help**, seleccioná **Geyser** y copiá el bloque de configuración que proporciona Playit. Ese bloque contiene credenciales privadas: tratálo como una contraseña.
 
-```bash
-git init
-git add .
-git commit -m "Servidor Minecraft Paper + Geyser"
-git branch -M main
-git remote add origin https://github.com/TU_USUARIO/minecraft-server.git
-git push -u origin main
-```
+### 3. Crear secretos de GitHub Actions
 
-### 3. Crear cuenta en playit.gg (gratis, sin tarjeta)
+Abrí:
+https://github.com/RagsnorWolf/minecraft-server/settings/secrets/actions
 
-playit.gg es el túnel que hace que el servidor sea accesible desde internet.
+Creá estos secretos exactamente con estos nombres:
 
-1. Entrá a https://playit.gg y creá una cuenta (email nomás).
-2. En el panel, **Add tunnel** → **Custom / Minecraft Java**:
-   - Local address: `127.0.0.1`
-   - Local port: `25565`
-   - Protocol: **TCP**
-3. **Add tunnel** otra vez → **Custom / Minecraft Bedrock**:
-   - Local address: `127.0.0.1`
-   - Local port: `19132`
-   - Protocol: **UDP**
-4. Copiá tu **Secret Key** (está en la sección *Agents* / *Setup*).
+| Nombre | Contenido |
+|---|---|
+| PLAYIT_SECRET | Secret Key del agente Playit |
+| PLAYIT_GEYSER_CONFIG | Bloque YAML copiado desde Configuration Help → Geyser |
+| PLAYIT_BEDROCK_ADDRESS | Host público que muestra el túnel Bedrock |
 
-### 4. Guardar el secret en GitHub
+Guardá el hostname tal como lo muestra Playit. Si ya incluye un puerto, dejalo incluido. Si no lo incluye, el script agrega el puerto Geyser configurado (19132).
 
-1. En tu repo: **Settings** → **Secrets and variables** → **Actions**
-2. **New repository secret**
-3. Nombre: `PLAYIT_SECRET`
-4. Valor: tu secret key de playit.gg
-5. **Add secret**
+### 4. Secretos para Codespaces
 
-### 5. Arrancar el servidor
+Si vas a ejecutar desde Codespaces, también creá esos mismos secretos en:
+https://github.com/settings/codespaces
 
-1. En tu repo: pestaña **Actions**
-2. En la izquierda, click en **Minecraft Server**
-3. Botón **Run workflow** (derecha)
-4. Dejá los valores por defecto y dale **Run workflow**
-5. Entrá al run → job **Paper + Geyser + Floodgate** → vas a ver el log en vivo
-6. Cuando aparezca **Servidor Minecraft ONLINE**, arriba del log está la tabla con la **dirección** de playit
+Asigná cada secreto al repositorio RagsnorWolf/minecraft-server. Actions y Codespaces mantienen sus secretos por separado.
 
-Eso es todo. El servidor queda online hasta 5 h 30 min (o hasta que se cumpla el tiempo que pusiste).
+No compartas en chats, issues, capturas ni commits el valor de los secretos. Si una clave se publica accidentalmente, revocala y generá otra en Playit.
 
----
+## Arrancar desde GitHub Actions
 
-## Cómo conectarse
+1. Abrí la pestaña Actions del repositorio.
+2. Seleccioná **Minecraft Server**.
+3. Presioná **Run workflow**.
+4. Usá Paper 1.21.10, duración 330 minutos y heap 6G como valores iniciales.
+5. Abrí el job y revisá el registro. Cuando aparezca “Servidor listo”, el log y el issue de estado muestran las direcciones disponibles.
 
-| Plataforma | Dirección |
-|------------|-----------|
-| **Java (PC)** | La dirección de playit, ej: `algo-at.playit.gg:25565` |
-| **Bedrock (celular, consola, Win10)** | La dirección de playit del túnel UDP, ej: `algo-at.playit.gg:19132` |
+Para apagar antes de tiempo, cancelá la ejecución activa desde Actions.
 
-La dirección de playit es **fija**: no cambia entre arranques. Guardala en favoritos.
+Si Playit no está configurado, el script intenta ofrecer una dirección Bore temporal para Java. Bore **no sirve para Bedrock**.
 
-### Primer ingreso como admin
+## Arrancar desde Codespaces
 
-1. Entrá al servidor desde Java con tu nick.
-2. En el log de Actions no podés escribir comandos, así que el op se agrega desde el archivo `ops.json`.
-3. Opción rápida: creá el archivo `server/ops.json` localmente... o mejor, usá **RCON** (ver abajo).
+1. En el repositorio, presioná Code → Codespaces → Create codespace on main.
+2. Esperá a que termine .devcontainer/setup.sh.
+3. .devcontainer/start.sh inicia el servidor cuando arranca el Codespace.
+4. Seguí los registros con el comando: **tail -f .devcontainer/server.log**
+5. La dirección también queda en **server/ADDRESS.txt**.
+6. Para apagar, detené el Codespace.
 
-**Alternativa más simple:** agregá tu nick a `whitelist.json` y `ops.json` desde el repo:
+La ruta del servidor dentro del Codespace es:
+**/workspaces/minecraft-server/server/**
 
-```json
-[
-  {
-    "uuid": "00000000-0000-0000-0000-000000000000",
-    "name": "TuNick",
-    "level": 4,
-    "bypassesPlayerLimit": true
-  }
-]
-```
+Los puertos reenviados de Codespaces sirven para pruebas locales, pero no reemplazan Playit para conexiones públicas Bedrock.
 
-Paper acepta el UUID en ceros y lo resuelve por nombre al arrancar (offline). Si el server
-está en `online-mode=true`, lo mejor es entrar una vez, y desde la consola del log buscar tu UUID real.
+## Cómo entrar
 
----
+| Edición | Dirección | Puerto |
+|---|---|---|
+| Java | Host publicado como JAVA en el log | el puerto que muestra Playit |
+| Bedrock | Host configurado como BEDROCK | 19132, salvo que el bloque de Playit indique otro |
 
-## Prender / apagar desde el celular
+Java y Bedrock son túneles diferentes. No uses la dirección Java para Bedrock.
 
-### Desde el navegador del celular (recomendado)
+## Autenticación y seguridad
 
-1. Abrí `github.com/TU_USUARIO/minecraft-server/actions/workflows/minecraft.yml`
-2. **Run workflow** → **Run workflow**
-3. Para apagar: entrá al run en curso → **Cancel workflow**
+- online-mode=true mantiene la autenticación oficial de Java.
+- Geyser usa auth-type: floodgate para permitir el ingreso Bedrock mediante Floodgate.
+- No pongas online-mode=false como solución a problemas de Floodgate.
+- PLAYIT_GEYSER_CONFIG y la clave de Floodgate son credenciales privadas. Nunca deben subirse al repositorio.
+- El servidor está limitado inicialmente a 4 jugadores. Cambiá max-players solo si la memoria y la sesión lo permiten.
 
-Anda perfecto en Chrome/Safari de Android/iOS. Podés agregar el link a la pantalla de inicio.
+## Primer ingreso como administrador
 
-### Con la app de GitHub
+Para dar permisos de operador, agregá tu UUID Java real a server/ops.json durante una sesión y preservá ese archivo entre sesiones. No uses UUIDs falsos ni el UUID de ceros en un servidor con autenticación oficial.
 
-La app oficial permite ver Actions y cancelar runs. Para *disparar* un workflow hace falta
-el navegador (o la API).
+RCON no está habilitado por defecto. Para usarlo habría que configurarlo con una contraseña privada y restringirlo a localhost.
 
-### Por API con `curl` (para un atajo en Termius / iOS Shortcuts)
+## Diagnóstico rápido
 
-```bash
-curl -X POST \
-  -H "Authorization: Bearer TU_GITHUB_TOKEN" \
-  -H "Accept: application/vnd.github+json" \
-  https://api.github.com/repos/TU_USUARIO/minecraft-server/actions/workflows/minecraft.yml/dispatches \
-  -d '{"ref":"main","inputs":{"version":"1.21.11","duration":"330","heap":"6G"}}'
-```
+- Falta PLAYIT_SECRET: revisar Settings → Secrets and variables → Actions.
+- Java no muestra dirección Playit: revisar que el agente esté enlazado y que exista el túnel Java TCP hacia 127.0.0.1:25565.
+- Bedrock no conecta: revisar PLAYIT_GEYSER_CONFIG, PLAYIT_BEDROCK_ADDRESS, el tipo NetherNet y el mensaje de Geyser sobre el registro con el servicio de señalización.
+- Geyser no acepta Bedrock: confirmar auth-type: floodgate y que Floodgate esté en server/plugins/.
+- Servidor lento: reducir view-distance, simulation-distance o HEAP.
 
-Para cancelar:
+## Referencias oficiales
 
-```bash
-curl -X POST \
-  -H "Authorization: Bearer TU_GITHUB_TOKEN" \
-  https://api.github.com/repos/TU_USUARIO/minecraft-server/actions/runs/ID_DEL_RUN/cancel
-```
-
----
-
-## Alternativa: GitHub Codespaces (sin límite de 6 h)
-
-Si querés sesiones más largas o una terminal cómoda, usá el Codespace que ya viene configurado
-en `.devcontainer/`.
-
-1. En el repo: botón verde **Code** → pestaña **Codespaces** → **Create codespace on main**
-2. Esperá a que termine el `postCreateCommand` (instala Paper + Geyser + Floodgate)
-3. El servidor arranca solo (`postStartCommand`)
-4. En la terminal del Codespace: `tail -f .devcontainer/server.log` para ver la dirección de playit
-5. Para apagar: **Codespaces** → `...` → **Stop codespace**
-
-**Límite gratuito:** 120 core-hours/mes. Con la máquina de 2 núcleos = **60 horas/mes**.
-La máquina de 4 núcleos/16 GB = 30 horas/mes (más RAM, menos horas).
-
-También necesitás cargar `PLAYIT_SECRET` en https://github.com/settings/codespaces
-(Secrets → New secret → asignarlo a este repo).
-
----
-
-## Estructura del repo
-
-```
-.
-├── .github/workflows/minecraft.yml   # arranque manual, 6 h máx, guarda el mundo
-├── .devcontainer/                    # alternativa Codespaces
-│   ├── devcontainer.json
-│   ├── setup.sh
-│   └── start.sh
-├── config/
-│   ├── server.properties             # config del server
-│   └── geyser-config.yml             # Geyser en modo floodgate
-├── scripts/
-│   ├── install.sh                    # descarga Paper + Geyser + Floodgate
-│   └── run.sh                        # arranca túnel + server, espera, apaga
-├── docker-compose.yml                # opcional para VPS propia
-└── README.md
-```
-
----
-
-## Problemas comunes
-
-| Síntoma | Causa / solución |
-|---------|------------------|
-| `Falta el secret PLAYIT_SECRET` | No cargaste el secret en Settings → Secrets → Actions. |
-| El server arranca pero nadie puede entrar | El túnel de playit está en estado *offline*. Revisá que el secret sea el correcto y que los túneles estén creados en playit.gg. |
-| `Unsupported class file major version` | El workflow usa Java 21. Si cambiás a Paper 26.x, subí a Java 25. |
-| Bedrock entra pero lo patea | Falta `auth-type: floodgate` en `plugins/Geyser-Spigot/config.yml`. Este repo ya lo trae en `config/geyser-config.yml`. |
-| Se perdió el mundo | La caché de Actions se borra tras 7 días sin uso. Entrá una vez por semana o descargá el mundo desde el artifact de logs. |
-| Error `out of memory` | Bajá `heap` a `4G` en los inputs del workflow. |
-| Quiero cambiar de versión | En *Run workflow* poné `version: 26.3` (última) o la que quieras. El script resuelve el build solo. |
-
----
-
-## Cambiar la versión de Minecraft
-
-El input `version` acepta cualquier versión publicada en Paper:
-
-- `1.21.11` → última de la línea 1.21 (la que pediste)
-- `26.3` → la más nueva (noviembre 2026), requiere Java 25
-
-Para cambiar Java, editá `.github/workflows/minecraft.yml`:
-
-```yaml
-      - name: Java 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "25"
-```
-
----
-
-## Créditos / fuentes
-
-- PaperMC: https://papermc.io — API v3: https://fill.papermc.io/v3/projects/paper
-- GeyserMC: https://geysermc.org
-- Floodgate: https://github.com/GeyserMC/Floodgate
-- playit.gg: https://playit.gg
-- Lista de hostings gratis: https://github.com/Myuui/Free-Minecraft-Hosts
+- Paper: https://papermc.io
+- ViaVersion: https://viaversion.com
+- Geyser + Playit: https://playit.gg/support/use-geyser-on-paper/
+- Geyser Setup: https://geysermc.org/wiki/geyser/setup/
+- Floodgate Setup: https://geysermc.org/wiki/floodgate/setup/
+- Playit: https://playit.gg
