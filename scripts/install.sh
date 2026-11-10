@@ -46,6 +46,29 @@ if [ ! -s "$SRV/plugins/ViaVersion.jar" ]; then
   curl -fsSL --retry 4 -H "User-Agent: $MODRINTH_UA" "$VV_URL" -o "$SRV/plugins/ViaVersion.jar"
 fi
 
+# Plugins adicionales administrados desde config/plugins.txt.
+# Una URL HTTPS directa por línea. Comentarios y líneas vacías se ignoran.
+EXTRA_PLUGINS_FILE="$ROOT/config/plugins.txt"
+if [ -f "$EXTRA_PLUGINS_FILE" ]; then
+  echo ">> Instalando plugins adicionales declarados en config/plugins.txt ..."
+  while IFS= read -r plugin_url || [ -n "$plugin_url" ]; do
+    plugin_url="${plugin_url%%#*}"
+    plugin_url="$(printf '%s' "$plugin_url" | xargs)"
+    [ -z "$plugin_url" ] && continue
+    case "$plugin_url" in
+      https://*) ;;
+      *) echo "::error::Solo se permiten URLs HTTPS en config/plugins.txt"; exit 1 ;;
+    esac
+    plugin_file="$(basename "${plugin_url%%\\?*}")"
+    case "$plugin_file" in
+      *.jar) ;;
+      *) echo "::error::La URL no termina en .jar: $plugin_file"; exit 1 ;;
+    esac
+    echo "   -> $plugin_file"
+    curl -fsSL --retry 4 --retry-delay 2 "$plugin_url" -o "$SRV/plugins/$plugin_file"
+  done < "$EXTRA_PLUGINS_FILE"
+fi
+
 echo "eula=true" > "$SRV/eula.txt"
 if [ ! -s "$SRV/server.properties" ]; then
   cp "$ROOT/config/server.properties" "$SRV/server.properties"
