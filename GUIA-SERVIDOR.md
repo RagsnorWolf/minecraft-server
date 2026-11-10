@@ -6,23 +6,22 @@
 - **Java:** Java 21.
 - **Java Edition:** puerto local TCP 25565.
 - **Bedrock Edition:** Geyser + Floodgate, puerto local UDP 19132; para acceso público se configura Playit NetherNet.
-- **Máquina Codespaces configurada:** mínimo 4 CPU, 16 GB RAM, 64 GB almacenamiento.
-- **RAM de Paper:** el arranque calcula automáticamente cerca del 75% de la RAM visible para Java. En una máquina de 16 GB asigna aproximadamente 12 GB; en una de 32 GB, aproximadamente 24 GB. Se reserva el resto para Linux, Geyser, Playit y otros procesos.
+- **Máquina Codespaces utilizada:** 2 CPU, 8 GB RAM y 32 GB almacenamiento (tu Codespace actual).
+- **RAM de Paper:** el arranque detecta el límite real del contenedor y asigna aproximadamente el 75%; en tu Codespace de 8 GB, unos 6 GB para Java.
 
 Paper recomienda Java 21 para las versiones 1.20 a 1.21.11: https://docs.papermc.io/paper/getting-started/
 
 ## 2. Crear el Codespace desde un navegador
 
-1. Iniciá sesión en GitHub desde cualquier dispositivo: https://github.com
-2. Abrí este repositorio: https://github.com/RagsnorWolf/minecraft-server
-3. Tocá **Code → Codespaces → Create codespace on main**.
-4. Seleccioná la configuración del contenedor y una máquina que cumpla al menos 2 CPU / 8 GB / 32 GB (el Codespace existente).
+1. Abrí tu Codespace existente: https://github.com/codespaces/obscure-chainsaw-6v47qqqqq55w2r6ww
+2. Entrá a **Terminal → New Terminal**.
+3. Ejecutá `bash scripts/update-and-start.sh` para sincronizarlo con la nueva configuración, instalar los componentes y arrancar Paper.
 5. Esperá a que VS Code Web termine de preparar el entorno. La primera instalación descarga Paper y plugins.
 6. El servidor se inicia automáticamente al terminar la preparación.
 
 También podés administrar tus entornos desde https://github.com/codespaces. Abrí el Codespace y elegí **Start** o **Resume**. Cuando arranca, el script vuelve a encender Paper y el agente Playit.
 
-**Costo:** 4 núcleos y 64 GB de almacenamiento no son ilimitados ni necesariamente gratuitos. GitHub factura el uso de CPU por hora y el almacenamiento por GB-mes. Revisá el importe que GitHub muestra al crear el Codespace antes de confirmarlo. Podés elegir una máquina mayor si aparece disponible, pero será más cara.
+**Costo:** tu máquina de 2 núcleos y 32 GB de almacenamiento usa cuota de Codespaces. Revisá el consumo en Billing. GitHub factura el uso de CPU por hora y el almacenamiento por GB-mes. Revisá el importe que GitHub muestra al crear el Codespace antes de confirmarlo. Podés elegir una máquina mayor si aparece disponible, pero será más cara.
 
 ## 3. Cómo encender, apagar y comprobarlo
 
