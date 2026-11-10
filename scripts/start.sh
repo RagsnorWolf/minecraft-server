@@ -66,6 +66,22 @@ echo "Arrancando Paper 1.21.10 con Xms=$XMS y Xmx=$HEAP (RAM detectada: ${TOTAL_
 screen -L -Logfile "$SRV/logs/console.log" -dmS mc bash -lc \
   "cd '$SRV' && exec java -Xms$XMS -Xmx$HEAP -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -jar paper.jar --nogui"
 
+# screen puede tardar un instante en publicar la sesión; no confundir esa
+# carrera de arranque con un cierre real de Paper.
+session_ready=false
+for j in $(seq 1 10); do
+  if screen -ls 2>/dev/null | grep -qE '[.]mc[[:space:]]'; then
+    session_ready=true
+    break
+  fi
+  sleep 1
+done
+if [ "$session_ready" != "true" ]; then
+  echo "ERROR: no se pudo crear la sesión de Paper."
+  tail -n 120 "$SRV/logs/console.log" 2>/dev/null || true
+  exit 1
+fi
+
 echo "Esperando a que Paper termine de iniciar..."
 for i in $(seq 1 180); do
   if grep -qE 'Done \([0-9.]+s\)!' "$SRV/logs/latest.log" 2>/dev/null; then
