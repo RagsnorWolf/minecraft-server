@@ -28,7 +28,13 @@ También podés administrar tus entornos desde https://github.com/codespaces. Ab
 
 Abrí **Terminal → New Terminal** dentro de VS Code Web.
 
-Encender:
+Primera sincronización del Codespace existente (actualiza el proyecto, instala dependencias y enciende el servidor):
+
+```bash
+bash scripts/update-and-start.sh
+```
+
+Encender después:
 
 ```bash
 bash scripts/start.sh
