@@ -35,6 +35,19 @@ if [ ! -s "$SRV/plugins/floodgate-spigot.jar" ]; then
     -o "$SRV/plugins/floodgate-spigot.jar"
 fi
 
+if [ ! -s "$SRV/plugins/ViaVersion.jar" ]; then
+  echo "Descargando ViaVersion estable compatible con Java 21 y clientes 26.3..."
+  VV_JSON="$(curl -fsSL --retry 5 --retry-delay 2 \
+    -H "User-Agent: RagsnorWolf-MinecraftServer/1.0 (https://github.com/RagsnorWolf/minecraft-server)" \
+    "https://api.modrinth.com/v2/project/viaversion/version?loaders=%5B%22paper%22%5D&game_versions=%5B%2226.3%22%5D&version_type=release")"
+  VV_URL="$(printf '%s' "$VV_JSON" | jq -r '.[0].files[] | select(.primary == true) | .url' | head -n1)"
+  if [ -z "$VV_URL" ] || [ "$VV_URL" = "null" ]; then
+    VV_URL="$(printf '%s' "$VV_JSON" | jq -r '.[0].files[0].url // empty')"
+  fi
+  [ -n "$VV_URL" ] || { echo "ERROR: Modrinth no devolvió ViaVersion release para Paper/26.3."; exit 1; }
+  curl -fL --retry 5 --retry-delay 2 "$VV_URL" -o "$SRV/plugins/ViaVersion.jar"
+fi
+
 printf 'eula=true\n' > "$SRV/eula.txt"
 if [ ! -s "$SRV/server.properties" ]; then
   cp "$ROOT/config/server.properties" "$SRV/server.properties"
