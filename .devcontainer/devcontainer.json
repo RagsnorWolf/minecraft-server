@@ -13,7 +13,10 @@
       "version": "21",
       "jdkDistro": "tem"
     },
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    }
   },
 
   "postCreateCommand": "bash .devcontainer/setup.sh",
