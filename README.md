@@ -4,10 +4,10 @@ Servidor Paper 1.21.10 para Minecraft Java, con Geyser + Floodgate preparados pa
 
 ## Crear y encender
 
-1. Abrí **Code → Codespaces → Create codespace on main**.
-2. Elegí una máquina de al menos **2 CPU / 8 GB RAM / 32 GB de almacenamiento** si está disponible.
-3. Codespaces instala Java 21, Paper, Geyser, Floodgate y Playit.
-4. Al abrir o reanudar el Codespace, Paper se inicia automáticamente.
+1. Abrí tu Codespace existente: [obscure chainsaw](https://github.com/codespaces/obscure-chainsaw-6v47qqqqq55w2r6ww).
+2. Ya tenés una máquina **2 CPU / 8 GB RAM / 32 GB de almacenamiento**; no hace falta crear otra.
+3. En **Terminal → New Terminal**, ejecutá `bash scripts/update-and-start.sh` una vez para sincronizar los archivos nuevos, instalar Java/plugins/Playit y encender Paper.
+4. Después se inicia automáticamente al abrir o reanudar el Codespace.
 
 Para sincronizar el Codespace existente, instalar y encender todo con un solo comando:
 
