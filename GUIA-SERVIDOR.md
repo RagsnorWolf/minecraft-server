@@ -16,7 +16,7 @@ Paper recomienda Java 21 para las versiones 1.20 a 1.21.11: https://docs.papermc
 1. Iniciá sesión en GitHub desde cualquier dispositivo: https://github.com
 2. Abrí este repositorio: https://github.com/RagsnorWolf/minecraft-server
 3. Tocá **Code → Codespaces → Create codespace on main**.
-4. Seleccioná la configuración del contenedor y una máquina que cumpla al menos 4 CPU / 16 GB / 64 GB.
+4. Seleccioná la configuración del contenedor y una máquina que cumpla al menos 2 CPU / 8 GB / 32 GB (el Codespace existente).
 5. Esperá a que VS Code Web termine de preparar el entorno. La primera instalación descarga Paper y plugins.
 6. El servidor se inicia automáticamente al terminar la preparación.
 
