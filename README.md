@@ -10,6 +10,8 @@ Servidor Paper 1.21.10 con GeyserMC, Floodgate y ViaVersion. Se puede ejecutar p
 - GitHub Actions funciona por sesiones y apaga el servidor al terminar el tiempo configurado (por defecto 330 minutos). No es un hosting 24/7.
 - Codespaces también puede ejecutar el servidor, pero las horas gratuitas dependen de la cuota de la cuenta y el entorno debe permanecer activo.
 - El mundo de Actions se conserva mediante GitHub Actions Cache. No es un sistema de copias de seguridad permanente: descargá copias periódicamente.
+- Compatibilidad: ViaVersion permite clientes Java 26.3 en Paper 1.21.10. Para NetherNet, Geyser indica que Bedrock 26.40+ puede conectar y que la compatibilidad completa llega con 26.50+.
+- Seguridad: la configuración anterior usaba `online-mode=false`; ahora se usa `true`. El mundo y las construcciones no se borran, pero los datos de jugador de aquella etapa pueden estar guardados bajo UUID offline. Por eso inventario, ender chest, experiencia y estadísticas podrían no aparecer con la cuenta autenticada hasta migrar el playerdata. No borres los archivos antiguos; hacé una copia antes de migrar.
 
 ## Archivos y carpetas
 
