@@ -5,7 +5,7 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = ROOT / "server" / "plugins" / "Geyser-Spigot" / "config.yml"
+CONFIG = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / "server" / "plugins" / "Geyser-Spigot" / "config.yml"
 
 if not CONFIG.is_file():
     print(f"Geyser config not generated yet: {CONFIG}")
