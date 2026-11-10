@@ -18,6 +18,10 @@ if ! [[ "$DURATION" =~ ^[0-9]+$ ]]; then
   log "ERROR: DURATION debe ser un entero en minutos."
   exit 1
 fi
+if (( DURATION > 350 )); then
+  log "ERROR: DURATION no puede superar 350 minutos."
+  exit 1
+fi
 if ! [[ "$HEAP" =~ ^[1-9][0-9]*G$ ]]; then
   log "ERROR: HEAP debe tener formato como 4G o 6G."
   exit 1
@@ -74,6 +78,8 @@ wait_for_server() {
 
 start_server() {
   log "Arrancando Paper con $HEAP de RAM ..."
+  # Evita que el chequeo de "Done" detecte una línea de una sesión anterior.
+  : > logs/latest.log
   screen -dmS mc java \
     "-Xms$HEAP" "-Xmx$HEAP" \
     -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 \
