@@ -1,0 +1,3 @@
+# Agregá una URL HTTPS de descarga directa a un plugin Paper/Spigot por línea.
+# El archivo .jar se instalará en server/plugins/ al iniciar Codespaces o Actions.
+# Descargá solo plugins de autores y sitios en los que confíes.
