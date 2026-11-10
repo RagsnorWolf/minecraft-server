@@ -25,7 +25,7 @@ publish() {
     echo "JAVA=$java_addr"
     echo "BEDROCK=$bedrock_addr"
     echo "FECHA=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    echo "CODESPACE=${CODESPACE_NAME:-desconocido}"
+    echo "CODESPACE=${CODESPACE_NAME:-github-actions}"
   } > "$ADDR_FILE"
 
   echo ""
@@ -35,31 +35,22 @@ publish() {
   echo "================================================================"
   echo ""
 
-  if [ -n "${GITHUB_TOKEN:-}" ]; then
-    local body
-    body=$(printf 'Servidor encendido.\n\n| Edicion | Direccion |\n|---|---|\n| Java | `%s` |\n| Bedrock | `%s` |\n\nCodespace: `%s`\nHora UTC: `%s`\n' \
-      "$java_addr" "$bedrock_addr" "${CODESPACE_NAME:-?}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)")
+  [ -n "${GITHUB_TOKEN:-}" ] || return 0
 
-    # Busca el issue de estado; si no existe lo crea.
-    local issue
-    issue=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-      "https://api.github.com/repos/$REPO/issues?state=open&per_page=100" \
-      | grep -o '"number":[0-9]*' | head -1 | cut -d: -f2)
+  local payload
+  payload=$(jq -n \
+    --arg title "Servidor ON - $java_addr" \
+    --arg java "$java_addr" \
+    --arg bedrock "$bedrock_addr" \
+    --arg host "${CODESPACE_NAME:-github-actions}" \
+    --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    '{title:$title, body:("Servidor encendido.\n\n| Edicion | Direccion |\n|---|---|\n| Java | `" + $java + "` |\n| Bedrock | `" + $bedrock + "` |\n\nHost: `" + $host + "`\nHora UTC: `" + $ts + "`")}')
 
-    if [ -n "$issue" ]; then
-      curl -s -o /dev/null -X POST \
-        -H "Authorization: Bearer $GITHUB_TOKEN" \
-        -H "Accept: application/vnd.github+json" \
-        "https://api.github.com/repos/$REPO/issues/$issue/comments" \
-        -d "$(printf '{"body":%s}' "$(printf '%s' "$body" | python3 -c 'import json,sys;print(json.dumps(sys.stdin.read()))')")"
-    else
-      curl -s -o /dev/null -X POST \
-        -H "Authorization: Bearer $GITHUB_TOKEN" \
-        -H "Accept: application/vnd.github+json" \
-        "https://api.github.com/repos/$REPO/issues" \
-        -d "$(printf '{"title":"Servidor Minecraft - estado y direcciones","body":%s}' "$(printf '%s' "$body" | python3 -c 'import json,sys;print(json.dumps(sys.stdin.read()))')")"
-    fi
-  fi
+  curl -s -o /dev/null -X POST \
+    -H "Authorization: Bearer $GITHUB_TOKEN" \
+    -H "Accept: application/vnd.github+json" \
+    "https://api.github.com/repos/$REPO/issues" \
+    -d "$payload" || true
 }
 
 wait_for_server() {

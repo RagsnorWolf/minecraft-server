@@ -26,6 +26,7 @@ concurrency:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   server:
@@ -38,6 +39,7 @@ jobs:
       DURATION: ${{ inputs.duration }}
       HEAP: ${{ inputs.heap }}
       PLAYIT_SECRET: ${{ secrets.PLAYIT_SECRET }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # ---- GeyserMC: se configura por variables de entorno ----
       # Asi funciona igual sin importar como cambie el config.yml entre versiones.
       GEYSER_BEDROCK_ADDRESS: "0.0.0.0"
