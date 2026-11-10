@@ -28,7 +28,7 @@ jobs:
       - name: Test automatic Floodgate configuration
         run: |
           mkdir -p server/plugins/Geyser-Spigot
-          cat > server/plugins/Geyser-Spigot/config.yml <<'YAML'
+          cat > /tmp/geyser-config.yml <<'YAML'
           remote:
             address: auto
             port: 25565
@@ -37,11 +37,11 @@ jobs:
             port: 19132
           YAML
           set +e
-          python3 scripts/configure-geyser.py
+          python3 scripts/configure-geyser.py /tmp/geyser-config.yml
           result=$?
           set -e
           test "$result" -eq 3
-          grep -q 'auth-type: floodgate' server/plugins/Geyser-Spigot/config.yml
+          grep -q 'auth-type: floodgate' /tmp/geyser-config.yml
       - name: Install Paper 1.21.10 and plugins
         run: bash scripts/install.sh
       - name: Boot Paper briefly
