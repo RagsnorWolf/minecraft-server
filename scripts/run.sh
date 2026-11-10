@@ -186,31 +186,40 @@ fi
 
 python3 "$ROOT/scripts/configure-geyser.py" "$SRV"
 
-# El agente queda activo antes de que Geyser cargue la configuración NetherNet.
-if [ -n "${PLAYIT_SECRET:-}" ]; then
+# En las pruebas automatizadas se omiten servicios públicos y credenciales.
+# En uso normal, el agente debe estar activo antes de que Geyser cargue NetherNet.
+if [ "${SKIP_PUBLIC_TUNNELS:-false}" = "true" ]; then
+  log "Modo de prueba: túneles públicos omitidos."
+elif [ -n "${PLAYIT_SECRET:-}" ]; then
   start_playit || true
 else
   log "PLAYIT_SECRET no está configurado. Java usará Bore si está disponible."
 fi
 
 start_server
-BEDROCK_FILE="$SRV/GEYSER_BEDROCK_ADDRESS.txt"
-if [ -s "$BEDROCK_FILE" ]; then
-  BEDROCK_ADDR="$(cat "$BEDROCK_FILE")"
-elif [ -n "${PLAYIT_GEYSER_CONFIG:-}" ]; then
-  BEDROCK_ADDR="NetherNet aplicado; falta PLAYIT_BEDROCK_ADDRESS"
-else
-  BEDROCK_ADDR="No configurado: falta PLAYIT_GEYSER_CONFIG"
-fi
 
-if [ -n "$PLAYIT_ADDR" ]; then
-  JAVA_ADDR="$PLAYIT_ADDR"
+if [ "${SKIP_PUBLIC_TUNNELS:-false}" = "true" ]; then
+  JAVA_ADDR="localhost:25565"
+  BEDROCK_ADDR="Solo local: túneles públicos omitidos en la prueba"
 else
-  start_bore || {
-    stop_server
-    docker stop playit >/dev/null 2>&1 || true
-    exit 1
-  }
+  BEDROCK_FILE="$SRV/GEYSER_BEDROCK_ADDRESS.txt"
+  if [ -s "$BEDROCK_FILE" ]; then
+    BEDROCK_ADDR="$(cat "$BEDROCK_FILE")"
+  elif [ -n "${PLAYIT_GEYSER_CONFIG:-}" ]; then
+    BEDROCK_ADDR="NetherNet aplicado; falta PLAYIT_BEDROCK_ADDRESS"
+  else
+    BEDROCK_ADDR="No configurado: falta PLAYIT_GEYSER_CONFIG"
+  fi
+
+  if [ -n "$PLAYIT_ADDR" ]; then
+    JAVA_ADDR="$PLAYIT_ADDR"
+  else
+    start_bore || {
+      stop_server
+      docker stop playit >/dev/null 2>&1 || true
+      exit 1
+    }
+  fi
 fi
 
 publish "$JAVA_ADDR" "$BEDROCK_ADDR"
