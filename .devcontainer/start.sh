@@ -1,21 +1,29 @@
 #!/usr/bin/env bash
-# Se ejecuta cada vez que el Codespace arranca (postStartCommand).
-# Arranca el servidor en segundo plano para que puedas apagar el Codespace
-# desde el celular y todo se detenga.
-set -euo pipefail
-cd "$(dirname "${BASH_SOURCE[0]}")/.."
+# Se ejecuta cada vez que arranca el Codespace.
+# Instala (si hace falta) y levanta el servidor + tunel en segundo plano.
+set -uo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
+
+LOG="/workspaces/minecraft-server/.devcontainer/server.log"
 
 if screen -ls 2>/dev/null | grep -q '\.mc'; then
   echo ">> El servidor ya estaba corriendo."
+  cat server/ADDRESS.txt 2>/dev/null
   exit 0
 fi
 
 if [ ! -f server/server.jar ]; then
-  echo ">> Servidor no instalado, instalando ..."
-  bash scripts/install.sh
+  echo ">> Instalando servidor ..."
+  bash scripts/install.sh >> "$LOG" 2>&1 || exit 1
 fi
 
-mkdir -p .devcontainer
-nohup bash scripts/run.sh > .devcontainer/server.log 2>&1 &
-echo ">> Servidor lanzado en segundo plano. Log: .devcontainer/server.log"
-echo ">> Espera ~1 minuto y busca la direccion de playit en ese log."
+echo ">> Arrancando servidor + tunel ..."
+nohup bash scripts/run.sh >> "$LOG" 2>&1 &
+
+echo ""
+echo "======================================================================"
+echo " Servidor lanzado. Segui el log con:"
+echo "   tail -f .devcontainer/server.log"
+echo " La direccion publica aparece ahi y tambien en server/ADDRESS.txt"
+echo "======================================================================"
+echo ""
