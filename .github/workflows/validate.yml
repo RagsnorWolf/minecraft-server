@@ -95,3 +95,47 @@ jobs:
 
           print("Geyser/Floodgate/Playit configuration test passed.")
           PY
+
+  server-smoke:
+    name: Boot Paper and plugins in an isolated runner
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install server utilities
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq screen jq curl python3-yaml
+
+      - name: Install Paper and plugins
+        run: PAPER_VERSION=1.21.10 bash scripts/install.sh
+
+      - name: Start server briefly without public tunnels
+        run: SKIP_PUBLIC_TUNNELS=true DURATION=2 HEAP=4G bash scripts/run.sh
+
+      - name: Verify server and plugins
+        run: |
+          grep -qE 'Done \\([0-9.]+s\\)!' server/logs/latest.log
+          test -s server/plugins/Geyser-Spigot.jar
+          test -s server/plugins/floodgate-spigot.jar
+          test -s server/plugins/ViaVersion.jar
+          grep -E 'Geyser|floodgate|ViaVersion' server/logs/latest.log | tail -n 20
+
+      - name: Upload smoke-test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: minecraft-smoke-test-logs
+          path: |
+            server/logs/latest.log
+            server/logs/*.log.gz
+          if-no-files-found: ignore
+          retention-days: 7
