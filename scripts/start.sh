@@ -40,6 +40,8 @@ if ! screen -ls 2>/dev/null | grep -qE '[.]mc[[:space:]]'; then
   fi
 
   echo "Arrancando Paper 1.21.10 con Xms=$XMS y Xmx=$HEAP..."
+  # Limpiar el log previo para no confundir el "Done" de una sesión anterior.
+  : > "$SRV/logs/latest.log"
   screen -L -Logfile "$SRV/logs/console.log" -dmS mc bash -lc \
     "cd '$SRV' && exec java -Xms$XMS -Xmx$HEAP -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -jar paper.jar --nogui"
 else
