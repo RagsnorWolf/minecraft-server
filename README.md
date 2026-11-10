@@ -9,7 +9,13 @@ Servidor Paper 1.21.10 para Minecraft Java, con Geyser + Floodgate preparados pa
 3. Codespaces instala Java 21, Paper, Geyser, Floodgate y Playit.
 4. Al abrir o reanudar el Codespace, Paper se inicia automáticamente.
 
-Para iniciarlo manualmente:
+Para sincronizar el Codespace existente, instalar y encender todo con un solo comando:
+
+```bash
+bash scripts/update-and-start.sh
+```
+
+Para iniciarlo manualmente después:
 
 ```bash
 bash scripts/start.sh
