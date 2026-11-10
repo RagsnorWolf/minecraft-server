@@ -68,7 +68,7 @@ def main() -> int:
             raise ValueError("la sección bedrock de Geyser no es válida")
         bedrock.setdefault("address", "0.0.0.0")
         bedrock.setdefault("port", 19132)
-        bedrock.setdefault("transport", "both")
+        bedrock.setdefault("transport", "nethernet")
         found = 0
         for section_name in ("remote", "java"):
             section = config.get(section_name)
