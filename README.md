@@ -134,3 +134,8 @@ RCON no está habilitado por defecto. Para usarlo habría que configurarlo con u
 - Geyser Setup: https://geysermc.org/wiki/geyser/setup/
 - Floodgate Setup: https://geysermc.org/wiki/floodgate/setup/
 - Playit: https://playit.gg
+
+
+## Guía completa
+
+Consultá **[GUIA-DEL-SERVIDOR.md](./GUIA-DEL-SERVIDOR.md)** para encontrar las carpetas del servidor, encenderlo y apagarlo, agregar plugins, importar mapas, configurar Paper y enlazar Java/Bedrock con Playit.gg.
