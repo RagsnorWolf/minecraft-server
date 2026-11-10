@@ -1,141 +1,46 @@
-# Ragsnor — Servidor Minecraft Java + Bedrock
+# Ragsnor Minecraft Server — Paper 1.21.10
 
-Servidor Paper 1.21.10 con GeyserMC, Floodgate y ViaVersion. Se puede ejecutar por sesiones desde GitHub Actions o GitHub Codespaces y publicar Java y Bedrock mediante Playit.gg.
+Servidor Paper 1.21.10 para Minecraft Java, con Geyser + Floodgate preparados para habilitar Bedrock. Se ejecuta en GitHub Codespaces y conserva el mundo dentro del almacenamiento persistente del Codespace.
 
-## Estado y límites
+## Crear y encender
 
-- Paper 1.21.10 usa Java 21. Se conserva esta versión para evitar convertir el mundo guardado a una versión nueva sin una copia verificada.
-- ViaVersion se instala automáticamente para admitir clientes Java actuales, incluida la línea 26.3.
-- Geyser + Floodgate permiten el acceso Bedrock sin que cada jugador tenga una cuenta Java.
-- GitHub Actions funciona por sesiones y apaga el servidor al terminar el tiempo configurado (por defecto 330 minutos). No es un hosting 24/7.
-- Codespaces también puede ejecutar el servidor, pero las horas gratuitas dependen de la cuota de la cuenta y el entorno debe permanecer activo.
-- El mundo de Actions se conserva mediante GitHub Actions Cache. No es un sistema de copias de seguridad permanente: descargá copias periódicamente.
-- Compatibilidad: ViaVersion permite clientes Java 26.3 en Paper 1.21.10. Para NetherNet, Geyser indica que Bedrock 26.40+ puede conectar y que la compatibilidad completa llega con 26.50+.
-- Seguridad: la configuración anterior usaba `online-mode=false`; ahora se usa `true`. El mundo y las construcciones no se borran, pero los datos de jugador de aquella etapa pueden estar guardados bajo UUID offline. Por eso inventario, ender chest, experiencia y estadísticas podrían no aparecer con la cuenta autenticada hasta migrar el playerdata. No borres los archivos antiguos; hacé una copia antes de migrar.
+1. Abrí **Code → Codespaces → Create codespace on main**.
+2. Elegí una máquina de al menos **4 CPU / 16 GB RAM / 64 GB de almacenamiento** si está disponible.
+3. Codespaces instala Java 21, Paper, Geyser, Floodgate y Playit.
+4. Al abrir o reanudar el Codespace, Paper se inicia automáticamente.
 
-## Archivos y carpetas
+Para iniciarlo manualmente:
 
-La carpeta **server/** no se sube al repositorio. Está excluida por .gitignore y se genera al instalar el servidor.
+```bash
+bash scripts/start.sh
+```
 
-Después de ejecutar la instalación, contiene:
-- **server.jar**: Paper.
-- **plugins/**: Geyser, Floodgate y ViaVersion.
-- **plugins/Geyser-Spigot/config.yml**: configuración de Geyser y conexión Bedrock.
-- **world/** y dimensiones: mundo.
-- **logs/latest.log**: registro del servidor.
-- **ADDRESS.txt**: direcciones publicadas durante la sesión.
-- **GEYSER_BEDROCK_ADDRESS.txt**: dirección pública Bedrock, si fue configurada.
+## Comandos
 
-## Configurar Playit.gg (una sola vez)
+```bash
+bash scripts/status.sh   # estado y últimas líneas
+bash scripts/stop.sh     # apagado seguro y guardado del mundo
+bash scripts/start.sh    # volver a encender
+bash scripts/console.sh  # abrir la consola de Paper
+bash scripts/backup.sh   # backup comprimido del mundo (con Paper apagado)
+```
 
-Necesitás una cuenta en https://playit.gg y dos túneles diferentes.
+## Direcciones públicas
 
-### 1. Túnel Java
+La dirección pública se obtiene después de vincular el agente Playit y crear los túneles:
+- Java: túnel **Minecraft Java**, destino local `127.0.0.1:25565`.
+- Bedrock: túnel **Minecraft Bedrock (NetherNet)** y bloque de configuración **Geyser** aplicado a `server/plugins/Geyser-Spigot/config.yml`.
 
-En Playit, creá un túnel de tipo Minecraft Java:
-- Destino local: 127.0.0.1
-- Puerto local: 25565
-- Protocolo: TCP
+Seguí **[PLAYIT.md](PLAYIT.md)**. No hay una IP pública fija incorporada al repositorio: Playit asigna la dirección al agente activo.
 
-En Agents / Setup copiá la Secret Key del agente. No la publiques ni la pegues en archivos del repositorio.
+## Carpetas
 
-### 2. Túnel Bedrock
+- `server/world/`: mundo principal.
+- `server/plugins/`: plugins .jar y sus configuraciones.
+- `server/server.properties`: ajustes del juego.
+- `server/config/`: configuración avanzada de Paper.
+- `server/logs/latest.log`: log de Paper.
+- `server/logs/playit.log`: log del túnel.
+- `backups/`: copias manuales del mundo.
 
-Para Geyser actual, creá un túnel de tipo **Minecraft Bedrock (NetherNet)**, no el túnel Bedrock antiguo. Confirmá el aviso experimental si Playit lo solicita.
-
-Abrí ese túnel, entrá en **Configuration Help**, seleccioná **Geyser** y copiá el bloque de configuración que proporciona Playit. Ese bloque contiene credenciales privadas: tratálo como una contraseña.
-
-### 3. Crear secretos de GitHub Actions
-
-Abrí:
-https://github.com/RagsnorWolf/minecraft-server/settings/secrets/actions
-
-Creá estos secretos exactamente con estos nombres:
-
-| Nombre | Contenido |
-|---|---|
-| PLAYIT_SECRET | Secret Key del agente Playit |
-| PLAYIT_GEYSER_CONFIG | Bloque YAML copiado desde Configuration Help → Geyser |
-| PLAYIT_BEDROCK_ADDRESS | Host público que muestra el túnel Bedrock |
-
-Guardá el hostname tal como lo muestra Playit. Si ya incluye un puerto, dejalo incluido. Si no lo incluye, el script agrega el puerto Geyser configurado (19132).
-
-### 4. Secretos para Codespaces
-
-Si vas a ejecutar desde Codespaces, también creá esos mismos secretos en:
-https://github.com/settings/codespaces
-
-Asigná cada secreto al repositorio RagsnorWolf/minecraft-server. Actions y Codespaces mantienen sus secretos por separado.
-
-No compartas en chats, issues, capturas ni commits el valor de los secretos. Si una clave se publica accidentalmente, revocala y generá otra en Playit.
-
-## Arrancar desde GitHub Actions
-
-1. Abrí la pestaña Actions del repositorio.
-2. Seleccioná **Minecraft Server**.
-3. Presioná **Run workflow**.
-4. Usá Paper 1.21.10, duración 330 minutos y heap 6G como valores iniciales.
-5. Abrí el job y revisá el registro. Cuando aparezca “Servidor listo”, el log y el issue de estado muestran las direcciones disponibles.
-
-Para apagar antes de tiempo, cancelá la ejecución activa desde Actions.
-
-Si Playit no está configurado, el script intenta ofrecer una dirección Bore temporal para Java. Bore **no sirve para Bedrock**.
-
-## Arrancar desde Codespaces
-
-1. En el repositorio, presioná Code → Codespaces → Create codespace on main.
-2. Esperá a que termine .devcontainer/setup.sh.
-3. .devcontainer/start.sh inicia el servidor cuando arranca el Codespace.
-4. Seguí los registros con el comando: **tail -f .devcontainer/server.log**
-5. La dirección también queda en **server/ADDRESS.txt**.
-6. Para apagar, detené el Codespace.
-
-La ruta del servidor dentro del Codespace es:
-**/workspaces/minecraft-server/server/**
-
-Los puertos reenviados de Codespaces sirven para pruebas locales, pero no reemplazan Playit para conexiones públicas Bedrock.
-
-## Cómo entrar
-
-| Edición | Dirección | Puerto |
-|---|---|---|
-| Java | Host publicado como JAVA en el log | el puerto que muestra Playit |
-| Bedrock | Host configurado como BEDROCK | 19132, salvo que el bloque de Playit indique otro |
-
-Java y Bedrock son túneles diferentes. No uses la dirección Java para Bedrock.
-
-## Autenticación y seguridad
-
-- online-mode=true mantiene la autenticación oficial de Java.
-- Geyser usa auth-type: floodgate para permitir el ingreso Bedrock mediante Floodgate.
-- No pongas online-mode=false como solución a problemas de Floodgate.
-- PLAYIT_GEYSER_CONFIG y la clave de Floodgate son credenciales privadas. Nunca deben subirse al repositorio.
-- El servidor está limitado inicialmente a 4 jugadores. Cambiá max-players solo si la memoria y la sesión lo permiten.
-
-## Primer ingreso como administrador
-
-Para dar permisos de operador, agregá tu UUID Java real a server/ops.json durante una sesión y preservá ese archivo entre sesiones. No uses UUIDs falsos ni el UUID de ceros en un servidor con autenticación oficial.
-
-RCON no está habilitado por defecto. Para usarlo habría que configurarlo con una contraseña privada y restringirlo a localhost.
-
-## Diagnóstico rápido
-
-- Falta PLAYIT_SECRET: revisar Settings → Secrets and variables → Actions.
-- Java no muestra dirección Playit: revisar que el agente esté enlazado y que exista el túnel Java TCP hacia 127.0.0.1:25565.
-- Bedrock no conecta: revisar PLAYIT_GEYSER_CONFIG, PLAYIT_BEDROCK_ADDRESS, el tipo NetherNet y el mensaje de Geyser sobre el registro con el servicio de señalización.
-- Geyser no acepta Bedrock: confirmar auth-type: floodgate y que Floodgate esté en server/plugins/.
-- Servidor lento: reducir view-distance, simulation-distance o HEAP.
-
-## Referencias oficiales
-
-- Paper: https://papermc.io
-- ViaVersion: https://viaversion.com
-- Geyser + Playit: https://playit.gg/support/use-geyser-on-paper/
-- Geyser Setup: https://geysermc.org/wiki/geyser/setup/
-- Floodgate Setup: https://geysermc.org/wiki/floodgate/setup/
-- Playit: https://playit.gg
-
-
-## Guía completa
-
-Consultá **[GUIA-DEL-SERVIDOR.md](./GUIA-DEL-SERVIDOR.md)** para encontrar las carpetas del servidor, encenderlo y apagarlo, agregar plugins, importar mapas, configurar Paper y enlazar Java/Bedrock con Playit.gg.
+Los datos de `server/` y `backups/` se excluyen de Git para evitar subir mundos, archivos .jar o claves privadas.

@@ -1,12 +1,8 @@
-# Ignorar el servidor generado (mundo, jars, logs, configs de runtime)
-server/
+# Datos generados del servidor: nunca subir mundos o claves al repositorio
+/server/
+/backups/
+/.devcontainer/*.log
 *.jar
 *.log
-!gradle-wrapper.jar
-
-# Sistema
+*.zip
 .DS_Store
-Thumbs.db
-desktop.ini
-.vscode/
-.idea/
