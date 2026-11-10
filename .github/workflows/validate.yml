@@ -1,0 +1,97 @@
+name: Validate Minecraft Server Configuration
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate scripts and configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install YAML parser
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq python3-yaml
+
+      - name: Check shell syntax
+        run: |
+          set -euo pipefail
+          for file in scripts/install.sh scripts/run.sh .devcontainer/setup.sh .devcontainer/start.sh; do
+            echo "Checking $file"
+            bash -n "$file"
+          done
+
+      - name: Check Python syntax
+        run: python3 -m py_compile scripts/configure-geyser.py
+
+      - name: Validate workflow and devcontainer formats
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          import yaml
+
+          json.loads(Path(".devcontainer/devcontainer.json").read_text())
+          for file in [".github/workflows/minecraft.yml", ".github/workflows/validate.yml"]:
+              yaml.safe_load(Path(file).read_text())
+          print("JSON and YAML formats are valid.")
+          PY
+
+      - name: Test runtime Geyser configuration
+        run: |
+          python3 - <<'PY'
+          import os
+          import subprocess
+          import tempfile
+          from pathlib import Path
+          import yaml
+
+          with tempfile.TemporaryDirectory() as temp:
+              root = Path(temp)
+              config_dir = root / "plugins" / "Geyser-Spigot"
+              config_dir.mkdir(parents=True)
+              config_file = config_dir / "config.yml"
+              config_file.write_text(
+                  "bedrock:\n"
+                  "  address: 0.0.0.0\n"
+                  "  port: 19132\n"
+                  "  transport: raknet\n"
+                  "remote:\n"
+                  "  address: auto\n"
+                  "  port: 25565\n"
+                  "  auth-type: online\n",
+                  encoding="utf-8",
+              )
+
+              env = os.environ.copy()
+              env["PLAYIT_GEYSER_CONFIG"] = (
+                  "bedrock:\n"
+                  "  transport: nethernet\n"
+                  "  signaling:\n"
+                  "    test-setting: enabled\n"
+              )
+              env["PLAYIT_BEDROCK_ADDRESS"] = "ragsnor-test.tun.ply.gg"
+
+              subprocess.run(
+                  ["python3", "scripts/configure-geyser.py", str(root)],
+                  check=True,
+                  env=env,
+              )
+
+              config = yaml.safe_load(config_file.read_text(encoding="utf-8"))
+              assert config["bedrock"]["transport"] == "nethernet"
+              assert config["bedrock"]["signaling"]["test-setting"] == "enabled"
+              assert config["remote"]["auth-type"] == "floodgate"
+              address_file = root / "GEYSER_BEDROCK_ADDRESS.txt"
+              assert address_file.read_text(encoding="utf-8").strip() == "ragsnor-test.tun.ply.gg:19132"
+
+          print("Geyser/Floodgate/Playit configuration test passed.")
+          PY
