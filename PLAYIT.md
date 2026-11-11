@@ -46,11 +46,11 @@ El servidor ya instala ambos plugins. Primero Paper tiene que arrancar una vez p
 
 Luego:
 
-1. En Playit creá otro túnel y elegí **Minecraft Bedrock (NetherNet)**. No elijas el túnel Bedrock antiguo.
-2. Abrí **Configuration Help → Geyser** y copiá el bloque YAML completo.
+1. En Playit creá un túnel nuevo de tipo **Minecraft Bedrock (NetherNet)**.
+2. Abrí ese túnel y copiá el token NXS que proporciona Playit.
 3. En el Explorer del Codespace abrí `server/plugins/Geyser-Spigot/config.yml`.
-4. Dentro de la sección `bedrock:`, reemplazá las opciones indicadas por Playit, respetando exactamente la indentación.
-5. Dentro de `java:`, confirmá `auth-type: floodgate`.
+4. En la sección `bedrock:`, configurá el transporte NetherNet y el servicio de señalización NXS con el endpoint `https://nethernet.playit.gg` y el token de ese túnel. Desactivá STUN discovery. Seguí el bloque de configuración que Playit ofrece para tu túnel, respetando la indentación.
+5. Confirmá que la sección `remote:` tenga `auth-type: floodgate` (el servidor lo ajusta automáticamente en el arranque).
 6. Guardá el archivo y reiniciá Paper:
 
 ```bash
@@ -58,10 +58,10 @@ bash scripts/stop.sh
 bash scripts/start.sh
 ```
 
-7. En el log de Geyser buscá **Registered with the external signaling service**. Ese mensaje confirma que NetherNet quedó registrado.
-8. En Minecraft Bedrock agregá el hostname que da Playit y el puerto indicado (normalmente 19132).
+7. En el log de Geyser verificá que NetherNet/NXS se haya iniciado correctamente y que no aparezcan errores de autenticación del túnel.
+8. En Minecraft Bedrock agregá el hostname que da Playit y el puerto de conexión que el panel indica (Bedrock normalmente usa el puerto público 19132).
 
-La guía oficial de Playit detalla estos mismos pasos: https://playit.gg/support/use-geyser-on-paper/
+La versión actual de Playit documenta NetherNet con NXS, el endpoint `https://nethernet.playit.gg` y un token específico del túnel: https://github.com/playit-cloud/playit-agent/releases/tag/v1.2.0
 
 **Privacidad:** el bloque de Configuration Help incluye un token privado. No lo subas a Git, no lo compartas y no lo pegues en conversaciones. El directorio `server/` ya está ignorado por Git.
 
