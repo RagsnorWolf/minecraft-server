@@ -71,4 +71,4 @@ La guía oficial de Playit detalla estos mismos pasos: https://playit.gg/support
 - Bedrock: panel **Tunnels** de Playit → túnel NetherNet (normalmente puerto 19132).
 - El panel de GitHub Codespaces no reemplaza a Playit para la IP pública del juego.
 
-Si el Codespace se detiene, el agente y el servidor se desconectan. Al reanudar el Codespace, el script vuelve a iniciar ambos procesos.
+Si el Codespace se detiene, el agente y el servidor se desconectan. Al reanudar el Codespace, el script inicia el daemon desde `.playit/playit.toml` y luego Paper. La clave no se sube al repositorio.
