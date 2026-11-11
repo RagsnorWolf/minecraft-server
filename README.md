@@ -9,7 +9,7 @@ Servidor Paper 1.21.10 para Minecraft Java, con Geyser + Floodgate preparados pa
 3. En **Terminal → New Terminal**, ejecutá `bash scripts/update-and-start.sh` una vez para sincronizar los archivos nuevos, instalar Java/plugins/Playit y encender Paper.
 4. Después se inicia automáticamente al abrir o reanudar el Codespace.
 
-Para sincronizar el Codespace existente, instalar y encender todo con un solo comando:
+Para sincronizar el Codespace existente, instalar y encender Paper:
 
 ```bash
 bash scripts/update-and-start.sh
@@ -47,6 +47,7 @@ Seguí **[PLAYIT.md](PLAYIT.md)**. No hay una IP pública fija incorporada al re
 - `server/config/`: configuración avanzada de Paper.
 - `server/logs/latest.log`: log de Paper.
 - `server/logs/playit.log`: log del túnel.
+- `.playit/playit.toml`: credencial local del agente Playit (ignorada por Git; no compartir).
 - `backups/`: copias manuales del mundo.
 
 Los datos de `server/` y `backups/` se excluyen de Git para evitar subir mundos, archivos .jar o claves privadas.
