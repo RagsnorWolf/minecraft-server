@@ -6,3 +6,6 @@
 *.log
 *.zip
 .DS_Store
+
+# Credenciales locales del agente Playit (nunca publicar)
+/.playit/
