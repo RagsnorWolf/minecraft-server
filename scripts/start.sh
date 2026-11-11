@@ -44,15 +44,11 @@ if (( XMS_N > HEAP_N )); then
   exit 1
 fi
 
-# Playit se ejecuta separado de Paper y permanece activo en segundo plano.
-if [ "$SKIP_PLAYIT" != "true" ] && command -v playit >/dev/null 2>&1; then
-  if ! screen -ls 2>/dev/null | grep -qE '[.]playit[[:space:]]'; then
-    echo "Iniciando agente Playit. Si todavía no fue vinculado, ejecutá: playit setup"
-    screen -L -Logfile "$SRV/logs/playit.log" -dmS playit bash -lc 'exec playit'
-    sleep 2
-  fi
+# Playit usa su daemon directo con socket privado, sin depender de systemd.
+if [ "$SKIP_PLAYIT" != "true" ]; then
+  bash scripts/start-playitd.sh || echo "AVISO: Playit no quedó iniciado; Paper seguirá funcionando."
 else
-  echo "Playit omitido o no instalado."
+  echo "Playit omitido en esta prueba."
 fi
 
 if screen -ls 2>/dev/null | grep -qE '[.]mc[[:space:]]'; then
